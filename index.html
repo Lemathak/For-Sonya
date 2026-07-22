@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Соня, минутку внимания</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream: #FBF3EF;
+    --rose: #E8927C;
+    --rose-dark: #D97757;
+    --plum: #3D2B3A;
+    --sage: #A8B89A;
+    --sage-dark: #86996f;
+    --gold: #E8B04B;
+    --white: #FFFFFF;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'Poppins', sans-serif;
+    background: var(--cream);
+    color: var(--plum);
+    min-height:100vh;
+    overflow-x:hidden;
+    position:relative;
+  }
+
+  /* floating background shapes */
+  .bg-shape{
+    position:fixed;
+    border-radius:50%;
+    opacity:0.35;
+    filter:blur(2px);
+    z-index:0;
+    pointer-events:none;
+  }
+  .bg-shape.balloon{
+    background: var(--rose);
+    animation: float 8s ease-in-out infinite;
+  }
+  .bg-shape.balloon:nth-child(1){width:70px;height:90px;top:8%;left:6%;animation-delay:0s;}
+  .bg-shape.balloon:nth-child(2){width:50px;height:65px;top:65%;left:88%;background:var(--sage);animation-delay:1.5s;}
+  .bg-shape.balloon:nth-child(3){width:40px;height:52px;top:80%;left:10%;background:var(--gold);animation-delay:3s;}
+  .bg-shape.balloon:nth-child(4){width:60px;height:78px;top:15%;left:90%;animation-delay:2s;}
+
+  @keyframes float{
+    0%,100%{ transform: translateY(0) rotate(-3deg); }
+    50%{ transform: translateY(-25px) rotate(3deg); }
+  }
+
+  .container{
+    position:relative;
+    z-index:1;
+    max-width:640px;
+    margin:0 auto;
+    padding:60px 24px 100px;
+  }
+
+  /* HERO */
+  .hero{
+    text-align:center;
+    padding: 40px 0 50px;
+  }
+  .eyebrow{
+    font-size:13px;
+    letter-spacing:3px;
+    text-transform:uppercase;
+    color: var(--rose-dark);
+    font-weight:600;
+    margin-bottom:18px;
+  }
+  h1{
+    font-family:'Playfair Display', serif;
+    font-weight:700;
+    font-size:clamp(2.2rem, 7vw, 3.6rem);
+    line-height:1.15;
+    color: var(--plum);
+    margin-bottom:20px;
+  }
+  h1 em{
+    font-style:italic;
+    color: var(--rose-dark);
+  }
+  .hero p{
+    font-size:17px;
+    line-height:1.6;
+    color: rgba(61,43,58,0.75);
+    max-width:480px;
+    margin:0 auto;
+  }
+
+  /* THE QUESTION CARD */
+  .question-card{
+    background: var(--white);
+    border-radius:28px;
+    padding:48px 32px;
+    margin: 50px 0;
+    text-align:center;
+    box-shadow: 0 20px 60px -20px rgba(61,43,58,0.25);
+    position:relative;
+  }
+  .question-card h2{
+    font-family:'Playfair Display', serif;
+    font-size:clamp(1.5rem, 5vw, 2rem);
+    margin-bottom:36px;
+    line-height:1.3;
+  }
+
+  .btn-row{
+    display:flex;
+    gap:18px;
+    justify-content:center;
+    align-items:center;
+    flex-wrap:wrap;
+    min-height:120px;
+    position:relative;
+  }
+
+  .btn{
+    border:none;
+    font-family:'Poppins', sans-serif;
+    font-weight:600;
+    font-size:16px;
+    padding:16px 38px;
+    border-radius:100px;
+    cursor:pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .btn-yes{
+    background: var(--sage);
+    color: var(--white);
+    box-shadow: 0 8px 24px -8px rgba(134,153,111,0.6);
+  }
+  .btn-yes:hover{
+    background: var(--sage-dark);
+    transform: scale(1.06);
+  }
+  .btn-no{
+    background: var(--white);
+    color: var(--plum);
+    border: 2px solid rgba(61,43,58,0.15);
+    position: relative;
+    transition: transform 0.18s ease-out, left 0.18s ease-out, top 0.18s ease-out;
+  }
+  .no-wrap{
+    position:relative;
+    display:inline-block;
+  }
+  .no-caption{
+    position:absolute;
+    top:100%;
+    left:50%;
+    transform: translateX(-50%);
+    font-size:12px;
+    color: var(--rose-dark);
+    white-space:nowrap;
+    margin-top:8px;
+    opacity:0;
+    transition:opacity 0.2s ease;
+    font-style:italic;
+  }
+  .no-caption.show{ opacity:1; }
+
+  .yes-selected{
+    display:none;
+    margin-top:30px;
+    font-family:'Playfair Display', serif;
+    font-size:20px;
+    color: var(--sage-dark);
+    font-weight:600;
+  }
+  .yes-selected.show{ display:block; animation: pop 0.4s ease; }
+  @keyframes pop{
+    0%{ transform:scale(0.7); opacity:0; }
+    60%{ transform:scale(1.08); }
+    100%{ transform:scale(1); opacity:1; }
+  }
+
+  /* FORM SECTION */
+  .form-section{
+    display:none;
+    animation: fadeUp 0.5s ease;
+  }
+  .form-section.show{ display:block; }
+  @keyframes fadeUp{
+    from{ opacity:0; transform: translateY(20px); }
+    to{ opacity:1; transform: translateY(0); }
+  }
+
+  .form-card{
+    background: var(--white);
+    border-radius:28px;
+    padding:44px 32px;
+    box-shadow: 0 20px 60px -20px rgba(61,43,58,0.25);
+  }
+  .form-card h3{
+    font-family:'Playfair Display', serif;
+    font-size:1.6rem;
+    margin-bottom:8px;
+    text-align:center;
+  }
+  .form-card .sub{
+    text-align:center;
+    color: rgba(61,43,58,0.6);
+    font-size:14px;
+    margin-bottom:32px;
+  }
+
+  .field{
+    margin-bottom:26px;
+  }
+  .field label{
+    display:block;
+    font-weight:600;
+    font-size:14px;
+    margin-bottom:10px;
+    color: var(--plum);
+  }
+  .field .hint{
+    font-weight:400;
+    font-style:italic;
+    color: rgba(61,43,58,0.5);
+    font-size:12.5px;
+    margin-left:6px;
+  }
+  input[type="date"], input[type="time"], input[type="text"]{
+    width:100%;
+    padding:14px 16px;
+    border-radius:14px;
+    border:2px solid rgba(61,43,58,0.12);
+    font-family:'Poppins', sans-serif;
+    font-size:15px;
+    color: var(--plum);
+    background: var(--cream);
+    transition: border-color 0.2s ease;
+  }
+  input:focus{
+    outline:none;
+    border-color: var(--rose);
+  }
+
+  .place-grid{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:12px;
+  }
+  .place-option{
+    position:relative;
+  }
+  .place-option input{
+    position:absolute;
+    opacity:0;
+    width:100%;
+    height:100%;
+    cursor:pointer;
+    margin:0;
+  }
+  .place-option label{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    gap:8px;
+    padding:16px 10px;
+    border-radius:14px;
+    border:2px solid rgba(61,43,58,0.12);
+    background: var(--cream);
+    font-weight:500;
+    font-size:14.5px;
+    cursor:pointer;
+    transition: all 0.2s ease;
+    min-height:56px;
+  }
+  .place-option input:checked + label{
+    background: var(--rose);
+    border-color: var(--rose);
+    color: var(--white);
+    font-weight:600;
+    transform: scale(1.02);
+  }
+  .place-option.custom{
+    grid-column: span 2;
+  }
+  #customPlaceText{
+    display:none;
+    margin-top:10px;
+  }
+  #customPlaceText.show{ display:block; }
+
+  .submit-btn{
+    width:100%;
+    padding:18px;
+    border:none;
+    border-radius:16px;
+    background: var(--rose-dark);
+    color: var(--white);
+    font-family:'Poppins', sans-serif;
+    font-weight:700;
+    font-size:16px;
+    cursor:pointer;
+    margin-top:12px;
+    transition: transform 0.15s ease, background 0.15s ease;
+    box-shadow: 0 12px 30px -10px rgba(217,119,87,0.6);
+  }
+  .submit-btn:hover{
+    background: var(--plum);
+    transform: translateY(-2px);
+  }
+  .submit-btn:disabled{
+    background: rgba(61,43,58,0.2);
+    cursor:not-allowed;
+    box-shadow:none;
+    transform:none;
+  }
+
+  .footer-note{
+    text-align:center;
+    font-size:13px;
+    color: rgba(61,43,58,0.45);
+    margin-top:24px;
+    font-style:italic;
+  }
+
+  .escape-counter{
+    text-align:center;
+    font-size:13px;
+    color: rgba(61,43,58,0.45);
+    margin-top:18px;
+    min-height:18px;
+  }
+
+  @media (max-width:480px){
+    .question-card, .form-card{ padding:32px 20px; }
+    .btn{ padding:14px 30px; font-size:15px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-shape balloon">🎈</div>
+<div class="bg-shape balloon">🎈</div>
+<div class="bg-shape balloon">🎈</div>
+<div class="bg-shape balloon">🎈</div>
+
+<div class="container">
+
+  <div class="hero">
+    <div class="eyebrow">Срочное объявление</div>
+    <h1>Соня, у меня к тебе <em>один</em> вопрос</h1>
+    <p>Он простой. Правда. Просто прочитай и попробуй ответить — если получится.</p>
+  </div>
+
+  <div class="question-card">
+    <h2>Пойдёшь со мной на свидание?</h2>
+    <div class="btn-row" id="btnRow">
+      <button class="btn btn-yes" id="yesBtn" onclick="sayYes()">Да, конечно 💚</button>
+      <span class="no-wrap">
+        <button class="btn btn-no" id="noBtn">Нет</button>
+        <span class="no-caption" id="noCaption">ой, а где кнопка?</span>
+      </span>
+    </div>
+    <div class="escape-counter" id="escapeCounter"></div>
+    <div class="yes-selected" id="yesMsg">Отличный выбор! Осталось только детали уточнить ⬇️</div>
+  </div>
+
+  <div class="form-section" id="formSection">
+    <div class="form-card">
+      <h3>Осталось договориться о деталях</h3>
+      <p class="sub">Заполни, что тебе удобно — и я всё устрою</p>
+
+      <form id="dateForm">
+        <div class="field">
+          <label for="dateInput">Дата</label>
+          <input type="date" id="dateInput" required>
+        </div>
+
+        <div class="field">
+          <label for="timeInput">Время</label>
+          <input type="time" id="timeInput" required>
+        </div>
+
+        <div class="field">
+          <label>Куда пойдём <span class="hint">(выбери один вариант)</span></label>
+          <div class="place-grid">
+            <div class="place-option">
+              <input type="radio" name="place" id="placePark" value="Парк">
+              <label for="placePark">🌳 Парк</label>
+            </div>
+            <div class="place-option">
+              <input type="radio" name="place" id="placeCinema" value="Кино">
+              <label for="placeCinema">🎬 Кино</label>
+            </div>
+            <div class="place-option">
+              <input type="radio" name="place" id="placeBalloon" value="Музей воздушных шаров">
+              <label for="placeBalloon">🎈 Музей воздушных шаров</label>
+            </div>
+            <div class="place-option">
+              <input type="radio" name="place" id="placeGarden" value="Ботанический сад">
+              <label for="placeGarden">🌿 Ботанический сад</label>
+            </div>
+            <div class="place-option custom">
+              <input type="radio" name="place" id="placeCustom" value="custom">
+              <label for="placeCustom">✏️ Свой вариант</label>
+            </div>
+          </div>
+          <input type="text" id="customPlaceText" placeholder="Куда хочешь пойти?">
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">Отправить ответ 💌</button>
+      </form>
+
+      <p class="footer-note">Нажатие откроет твою почту с готовым письмом — просто отправь его</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const noBtn = document.getElementById('noBtn');
+  const noCaption = document.getElementById('noCaption');
+  const btnRow = document.getElementById('btnRow');
+  const yesBtn = document.getElementById('yesBtn');
+  const yesMsg = document.getElementById('yesMsg');
+  const formSection = document.getElementById('formSection');
+  const escapeCounter = document.getElementById('escapeCounter');
+
+  const captions = [
+    "ой, а где кнопка?",
+    "не в этот раз",
+    "быстрее нужно быть",
+    "серьёзно, ты почти",
+    "а вот и снова нет",
+    "кнопка тренируется в спорте",
+    "у неё аллергия на клики",
+    "может, попробуешь \"да\"?",
+    "она уже устала бегать",
+    "ладно, это уже рекорд"
+  ];
+
+  let escapeCount = 0;
+  let noFixed = false;
+
+  function moveNoButton(){
+    if(noFixed) return;
+    const rowRect = btnRow.getBoundingClientRect();
+    const btnRect = noBtn.getBoundingClientRect();
+
+    const maxX = rowRect.width - btnRect.width - 10;
+    const maxY = rowRect.height - btnRect.height - 10;
+
+    const randX = Math.max(0, Math.random() * maxX);
+    const randY = Math.max(0, Math.random() * maxY);
+
+    noBtn.style.position = 'absolute';
+    noBtn.style.left = randX + 'px';
+    noBtn.style.top = randY + 'px';
+
+    escapeCount++;
+    const idx = Math.min(escapeCount - 1, captions.length - 1);
+    noCaption.textContent = captions[idx];
+    noCaption.classList.add('show');
+
+    if(escapeCount >= 6){
+      escapeCounter.textContent = `Попыток нажать "нет": ${escapeCount}. Может, хватит уже? 😄`;
+    } else if(escapeCount >= 2){
+      escapeCounter.textContent = `Попыток нажать "нет": ${escapeCount}`;
+    }
+
+    // after enough attempts, let her actually catch it once in a while to keep it fun
+    if(escapeCount >= 8){
+      noFixed = true;
+      noBtn.textContent = "Ладно, держи. Но серьёзно?";
+    }
+  }
+
+  noBtn.addEventListener('mouseenter', moveNoButton);
+  noBtn.addEventListener('touchstart', function(e){
+    e.preventDefault();
+    moveNoButton();
+  }, {passive:false});
+  noBtn.addEventListener('click', function(e){
+    if(!noFixed){
+      e.preventDefault();
+      moveNoButton();
+    } else {
+      escapeCounter.textContent = "Ну и ладно, кнопка тоже расстроилась.";
+    }
+  });
+
+  function sayYes(){
+    yesMsg.classList.add('show');
+    formSection.classList.add('show');
+    setTimeout(() => {
+      formSection.scrollIntoView({behavior:'smooth', block:'start'});
+    }, 300);
+  }
+
+  // custom place text toggle
+  const customRadio = document.getElementById('placeCustom');
+  const customText = document.getElementById('customPlaceText');
+  document.querySelectorAll('input[name="place"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      if(customRadio.checked){
+        customText.classList.add('show');
+        customText.required = true;
+      } else {
+        customText.classList.remove('show');
+        customText.required = false;
+      }
+    });
+  });
+
+  // form submit -> mailto
+  document.getElementById('dateForm').addEventListener('submit', function(e){
+    e.preventDefault();
+
+    const date = document.getElementById('dateInput').value;
+    const time = document.getElementById('timeInput').value;
+    const placeRadio = document.querySelector('input[name="place"]:checked');
+
+    if(!date || !time || !placeRadio){
+      alert('Заполни, пожалуйста, все поля 🙂');
+      return;
+    }
+
+    let place = placeRadio.value;
+    if(place === 'custom'){
+      place = customText.value.trim();
+      if(!place){
+        alert('Напиши, куда хочешь пойти 🙂');
+        return;
+      }
+    }
+
+    const dateObj = new Date(date);
+    const dateFormatted = dateObj.toLocaleDateString('ru-RU', { day:'numeric', month:'long', year:'numeric' });
+
+    const subject = encodeURIComponent('Соня согласна на свидание! 🎉');
+    const body = encodeURIComponent(
+`Соня подтвердила свидание!
+
+📅 Дата: ${dateFormatted}
+🕐 Время: ${time}
+📍 Место: ${place}
+
+(отправлено с сайта-приглашения)`
+    );
+
+    const recipient = ''; // no email hardcoded here — user fills their own on send
+    window.location.href = `mailto:${recipient}?subject=${subject}&body=${body}`;
+  });
+</script>
+
+</body>
+</html>
